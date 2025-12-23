@@ -36,21 +36,26 @@ const createCheckoutSession = async (req, res) => {
         // Process payment
         const paymentResult = await processPayment(payment, total);
 
-        // Create order
+        // Create order with initial status 'created'
         const order = new Order({
             items: orderItems,
             total,
-            status: paymentResult.status === 'succeeded' ? 'paid' : 'failed',
+            status: 'created',
             paymentDetails: {
                 cardLast4: payment.cardNumber.slice(-4),
                 cardHolder: payment.cardHolder,
             },
-            transactionId: paymentResult.id,
+            paymentIntentId: paymentResult.id,
         });
 
-        const createdOrder = await order.save();
+        // Save order first
+        let createdOrder = await order.save();
 
-        // Update stock
+        // Update status based on payment result
+        createdOrder.status = paymentResult.status === 'succeeded' ? 'paid' : 'failed';
+        createdOrder = await createdOrder.save();
+
+        // Update stock if paid
         if (createdOrder.status === 'paid') {
             for (const item of items) {
                 const product = await Product.findById(item.productId);

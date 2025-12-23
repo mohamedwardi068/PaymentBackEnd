@@ -20,8 +20,14 @@ const orderSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['pending', 'paid', 'failed'],
-        default: 'pending',
+        enum: ['created', 'paid', 'failed', 'refunded'],
+        default: 'created',
+    },
+    paymentIntentId: {
+        type: String,
+    },
+    refundedAt: {
+        type: Date,
     },
     paymentDetails: {
         cardLast4: { type: String, required: true },
