@@ -80,6 +80,15 @@ const createCheckoutSession = async (req, res) => {
     }
 };
 
+const getAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.find().sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 const getOrderById = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id).populate('items.productId');
@@ -93,4 +102,4 @@ const getOrderById = async (req, res) => {
     }
 };
 
-module.exports = { createCheckoutSession, getOrderById };
+module.exports = { createCheckoutSession, getOrderById, getAllOrders };
